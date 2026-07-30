@@ -1,0 +1,12 @@
+node_modules/
+dist/
+packages/server/data/users.json
+packages/server/data/invite-index.json
+packages/server/data/memberships.json
+packages/server/data/.jwt-secret
+packages/server/data/sites/*.json
+packages/server/data/ledger/*.jsonl
+packages/server/uploads/audio/**
+!packages/server/uploads/audio/.gitkeep
+*.log
+.env
