@@ -1,4 +1,4 @@
-import type { PublicUser, RelicNote, SiteState } from "shared";
+import type { PublicUser, PuzzleProgress, RelicNote, SiteState } from "shared";
 
 const TOKEN_KEY = "mantle_pieces_token";
 
@@ -69,6 +69,10 @@ export function getMySite() {
 
 export function getMe() {
   return request<{ user: PublicUser }>("/auth/me");
+}
+
+export function getPuzzleProgress() {
+  return request<{ progress: PuzzleProgress | null }>("/puzzle/progress");
 }
 
 export async function addTextNote(relicPlacementId: string, textContent: string) {

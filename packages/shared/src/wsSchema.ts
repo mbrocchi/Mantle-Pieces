@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GEM_COLORS } from "./constants";
 
 // ---- Client -> Server ----
 
@@ -35,6 +36,22 @@ export const mantleSwapRelicMessage = z.object({
   incomingRelicPlacementId: z.string(),
 });
 
+/** Sent after every puzzle move/retry/advance so the player's board survives a refresh. */
+export const puzzleSaveProgressMessage = z.object({
+  type: z.literal("puzzle:save_progress"),
+  levelNumber: z.number().int().positive(),
+  movesLimit: z.number().int().positive(),
+  movesUsed: z.number().int().nonnegative(),
+  objectives: z.array(
+    z.object({
+      color: z.enum(GEM_COLORS),
+      target: z.number().int(),
+      cleared: z.number().int(),
+    })
+  ),
+  grid: z.array(z.array(z.object({ id: z.string(), color: z.enum(GEM_COLORS) }))),
+});
+
 export const clientMessage = z.discriminatedUnion("type", [
   helloMessage,
   syncRequestMessage,
@@ -42,6 +59,7 @@ export const clientMessage = z.discriminatedUnion("type", [
   digClearTileMessage,
   digNextSectorMessage,
   mantleSwapRelicMessage,
+  puzzleSaveProgressMessage,
 ]);
 
 export type ClientMessage = z.infer<typeof clientMessage>;

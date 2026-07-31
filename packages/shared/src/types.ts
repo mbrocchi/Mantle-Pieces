@@ -84,3 +84,13 @@ export interface PuzzleObjective {
   target: number;
   cleared: number;
 }
+
+/** One player's personal puzzle-screen progress — per-user, not per-site, since each
+ *  family member has their own board even though tokens feed a shared wallet. */
+export interface PuzzleProgress {
+  levelNumber: number;
+  movesLimit: number;
+  movesUsed: number;
+  objectives: PuzzleObjective[];
+  grid: { id: string; color: GemColor }[][];
+}

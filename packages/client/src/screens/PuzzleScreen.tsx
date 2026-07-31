@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { motion, useAnimationControls } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { PUZZLE_SIZE, type GemColor } from "shared";
 import { createRandomGrid, type CellPos, type Grid } from "../game/grid";
 import { stepChain } from "../game/chain";
@@ -10,6 +10,7 @@ import { PuzzleCanvasOverlay, type PuzzleCanvasHandle } from "../components/Puzz
 import { playChainTone, playLoopBonusTone, unlockAudio } from "../audio/toneSynth";
 import { useWalletStore } from "../state/walletStore";
 import { wsClient } from "../lib/wsClient";
+import { getPuzzleProgress } from "../lib/apiClient";
 
 const DOT_COLOR_CLASS: Record<GemColor, string> = {
   red: "bg-red-500",
@@ -29,12 +30,31 @@ export function PuzzleScreen() {
   const canvasHandleRef = useRef<PuzzleCanvasHandle>(null);
   const shakeControls = useAnimationControls();
 
-  const [grid, setGrid] = useState<Grid>(() => createRandomGrid());
+  const [grid, setGrid] = useState<Grid | null>(null);
   const [chain, setChain] = useState<CellPos[]>([]);
   const [dragging, setDragging] = useState(false);
   const walletBalance = useWalletStore((s) => s.balance);
-  const [stage, setStage] = useState<PuzzleStage>(() => generateStage(1));
+  const [stage, setStage] = useState<PuzzleStage | null>(null);
   const [movesUsed, setMovesUsed] = useState(0);
+  const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getPuzzleProgress().then(({ progress }) => {
+      if (cancelled) return;
+      if (progress) {
+        setStage({ levelNumber: progress.levelNumber, movesLimit: progress.movesLimit, objectives: progress.objectives });
+        setMovesUsed(progress.movesUsed);
+        setGrid(progress.grid);
+      } else {
+        setStage(generateStage(1));
+        setGrid(createRandomGrid());
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const chainKeys = new Set(chain.map(cellKey));
 
@@ -58,31 +78,45 @@ export function PuzzleScreen() {
     wsClient.send({ type: "puzzle:tokens_earned", amount, reason });
   }
 
-  function updateObjectives(color: GemColor, count: number) {
-    setStage((prev) => ({
-      ...prev,
-      objectives: prev.objectives.map((o) =>
-        o.color === color ? { ...o, cleared: Math.min(o.target, o.cleared + count) } : o
-      ),
-    }));
+  function withObjectiveProgress(objectives: PuzzleStage["objectives"], color: GemColor, count: number) {
+    return objectives.map((o) => (o.color === color ? { ...o, cleared: Math.min(o.target, o.cleared + count) } : o));
+  }
+
+  function persistProgress(nextGrid: Grid, nextStage: PuzzleStage, nextMovesUsed: number) {
+    wsClient.send({
+      type: "puzzle:save_progress",
+      levelNumber: nextStage.levelNumber,
+      movesLimit: nextStage.movesLimit,
+      movesUsed: nextMovesUsed,
+      objectives: nextStage.objectives,
+      grid: nextGrid,
+    });
   }
 
   function advanceStage() {
-    const nextLevel = stage.levelNumber + 1;
-    setStage(generateStage(nextLevel));
+    if (!stage) return;
+    const nextStage = generateStage(stage.levelNumber + 1);
+    const nextGrid = createRandomGrid();
+    setStage(nextStage);
     setMovesUsed(0);
-    setGrid(createRandomGrid());
+    setGrid(nextGrid);
     setChain([]);
+    persistProgress(nextGrid, nextStage, 0);
   }
 
   function retryStage() {
-    setStage(generateStage(stage.levelNumber));
+    if (!stage) return;
+    const nextStage = generateStage(stage.levelNumber);
+    const nextGrid = createRandomGrid();
+    setStage(nextStage);
     setMovesUsed(0);
-    setGrid(createRandomGrid());
+    setGrid(nextGrid);
     setChain([]);
+    persistProgress(nextGrid, nextStage, 0);
   }
 
   useEffect(() => {
+    if (!stage) return;
     const allDone = stage.objectives.every((o) => o.cleared >= o.target);
     const outOfMoves = movesUsed >= stage.movesLimit;
     if (allDone) {
@@ -94,7 +128,7 @@ export function PuzzleScreen() {
       return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage.objectives, movesUsed]);
+  }, [stage, movesUsed]);
 
   function endDrag() {
     setDragging(false);
@@ -102,6 +136,7 @@ export function PuzzleScreen() {
   }
 
   function commitChain(finalChain: CellPos[]) {
+    if (!grid || !stage) return;
     if (finalChain.length < 2) {
       setChain([]);
       return;
@@ -112,13 +147,18 @@ export function PuzzleScreen() {
       const c = cellCenterPx(pos);
       canvasHandleRef.current?.burst(c.x, c.y, color);
     });
-    setGrid((g) => clearAndRefill(g, ids));
-    updateObjectives(color, finalChain.length);
-    setMovesUsed((m) => m + 1);
+    const nextGrid = clearAndRefill(grid, ids);
+    const nextStage = { ...stage, objectives: withObjectiveProgress(stage.objectives, color, finalChain.length) };
+    const nextMovesUsed = movesUsed + 1;
+    setGrid(nextGrid);
+    setStage(nextStage);
+    setMovesUsed(nextMovesUsed);
     setChain([]);
+    persistProgress(nextGrid, nextStage, nextMovesUsed);
   }
 
   function handleLoopClose(color: GemColor, pos: { x: number; y: number }) {
+    if (!grid || !stage) return;
     const idsToClear = new Set<string>();
     grid.forEach((column) => column.forEach((cell) => cell.color === color && idsToClear.add(cell.id)));
     const clearedCount = idsToClear.size;
@@ -131,15 +171,20 @@ export function PuzzleScreen() {
     });
     playLoopBonusTone();
 
-    setGrid((g) => clearAndRefill(g, idsToClear));
+    const nextGrid = clearAndRefill(grid, idsToClear);
+    const nextStage = { ...stage, objectives: withObjectiveProgress(stage.objectives, color, clearedCount) };
+    const nextMovesUsed = movesUsed + 1;
+    setGrid(nextGrid);
     onTokensEarned(Math.max(1, Math.floor(clearedCount / 3)), "loop_bonus");
-    updateObjectives(color, clearedCount);
-    setMovesUsed((m) => m + 1);
+    setStage(nextStage);
+    setMovesUsed(nextMovesUsed);
     setChain([]);
     endDrag();
+    persistProgress(nextGrid, nextStage, nextMovesUsed);
   }
 
   function handlePointerDown(e: React.PointerEvent) {
+    if (!grid) return;
     unlockAudio();
     const targetEl = (e.target as HTMLElement).closest("[data-col]") as HTMLElement | null;
     if (!targetEl) return;
@@ -154,7 +199,7 @@ export function PuzzleScreen() {
   }
 
   function handlePointerMove(e: React.PointerEvent) {
-    if (!dragging) return;
+    if (!dragging || !grid) return;
     const pos = boardRelativePx(e.clientX, e.clientY);
     const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-col]") as HTMLElement | null;
 
@@ -190,6 +235,14 @@ export function PuzzleScreen() {
     commitChain(chain);
   }
 
+  if (!grid || !stage) {
+    return (
+      <div className="app-screen bg-gradient-to-b from-navy to-black flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Loading your puzzle...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="app-screen bg-gradient-to-b from-navy to-black flex flex-col">
       <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white">
@@ -216,6 +269,12 @@ export function PuzzleScreen() {
             </span>
           </div>
         ))}
+      </div>
+
+      <div className="px-4 pb-2 flex justify-center">
+        <button onClick={() => setShowForfeitConfirm(true)} className="text-gray-400 text-xs underline">
+          Stuck? Forfeit Level
+        </button>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 pb-4">
@@ -265,6 +324,45 @@ export function PuzzleScreen() {
           <PuzzleCanvasOverlay ref={canvasHandleRef} />
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {showForfeitConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-6"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 340, damping: 30 }}
+              className="bg-navy-light rounded-2xl border-2 border-gold w-full max-w-sm p-5"
+            >
+              <p className="text-gold font-bold text-sm tracking-wide mb-2 text-center">FORFEIT LEVEL?</p>
+              <p className="text-gray-300 text-xs text-center mb-4">
+                This gives up your current progress on level {stage.levelNumber} and deals you a fresh board.
+              </p>
+              <button
+                onClick={() => {
+                  retryStage();
+                  setShowForfeitConfirm(false);
+                }}
+                className="w-full bg-red-600/90 text-white font-bold rounded-xl px-4 py-3 transition-transform active:scale-95"
+              >
+                Forfeit &amp; Start Again
+              </button>
+              <button
+                onClick={() => setShowForfeitConfirm(false)}
+                className="w-full text-gray-400 text-xs underline mt-3"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { verifyUserToken } from "../middleware/auth";
 import { getUserSiteId } from "../store/membershipStore";
 import { joinRoom, leaveRoom, sendTo } from "./roomManager";
 import { buildSyncState } from "./sync";
-import { handlePuzzleTokensEarned } from "./handlers/puzzle";
+import { handlePuzzleTokensEarned, handlePuzzleSaveProgress } from "./handlers/puzzle";
 import { handleDigClearTile, handleDigNextSector } from "./handlers/dig";
 import { handleMantleSwapRelic } from "./handlers/mantle";
 import type { ConnMeta } from "./connMeta";
@@ -65,6 +65,9 @@ export function attachWebSocketServer(httpServer: Server): WebSocketServer {
           break;
         case "puzzle:tokens_earned":
           handlePuzzleTokensEarned(meta, msg);
+          break;
+        case "puzzle:save_progress":
+          handlePuzzleSaveProgress(meta, msg);
           break;
         case "dig:clear_tile":
           handleDigClearTile(socket, meta, msg);

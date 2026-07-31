@@ -3,6 +3,7 @@ import path from "node:path";
 export const DATA_DIR = path.resolve(process.cwd(), "data");
 export const SITES_DIR = path.join(DATA_DIR, "sites");
 export const LEDGER_DIR = path.join(DATA_DIR, "ledger");
+export const PUZZLE_PROGRESS_DIR = path.join(DATA_DIR, "puzzleProgress");
 export const UPLOADS_DIR = path.resolve(process.cwd(), "uploads", "audio");
 
 export const USERS_FILE = path.join(DATA_DIR, "users.json");
@@ -15,4 +16,8 @@ export function siteFilePath(siteId: string): string {
 
 export function ledgerFilePath(siteId: string): string {
   return path.join(LEDGER_DIR, `${siteId}.jsonl`);
+}
+
+export function puzzleProgressFilePath(userId: string): string {
+  return path.join(PUZZLE_PROGRESS_DIR, `${userId}.json`);
 }
