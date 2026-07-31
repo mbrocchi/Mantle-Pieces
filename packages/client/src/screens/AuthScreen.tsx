@@ -25,11 +25,12 @@ export function AuthScreen() {
   }
 
   return (
-    <div className="app-screen bg-gradient-to-b from-navy to-black flex flex-col items-center justify-center px-8">
-      <h1 className="text-3xl font-bold text-gold tracking-wide mb-1">Mantle Pieces</h1>
-      <p className="text-gray-400 text-sm mb-8 text-center">
-        A family dig, one token bank, no scoreboards.
-      </p>
+    <div className="app-screen bg-gradient-to-b from-navy/70 to-black/85 flex flex-col items-center justify-center px-8">
+      <img
+        src="/logo.png"
+        alt="Mantle Pieces: Digs & Dots"
+        className="w-full max-w-[160px] mb-8 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+      />
 
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
         <input

@@ -47,7 +47,7 @@ export function BottomNav({
   onAccountClick: () => void;
 }) {
   return (
-    <nav className="app-tabbar bg-navy border-t border-black/40 flex items-stretch">
+    <nav className="app-tabbar bg-navy border-t border-black/40 shadow-[0_-4px_16px_rgba(0,0,0,0.45)] flex items-stretch">
       <div className="flex-1 flex items-stretch justify-around">
       {TABS.map((tab) => {
         const isActive = tab.id === active;

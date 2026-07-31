@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { findRelicType } from "shared";
 import { useDigStore } from "../state/digStore";
@@ -6,17 +6,45 @@ import { useWalletStore } from "../state/walletStore";
 import { wsClient } from "../lib/wsClient";
 import { isTileCleared } from "../game/bitmask";
 
-const TILE_SIZE = 36;
+const MIN_TILE_SIZE = 40;
+const MAX_TILE_SIZE = 104;
+// Matches the surrounding container's own px-4 (left+right) / pb-4 (bottom) padding,
+// which clientWidth/clientHeight include but which isn't usable space for the grid itself.
+const CONTAINER_H_PADDING = 32;
+const CONTAINER_V_PADDING = 16;
 
-export function DigScreen() {
+export function DigScreen({ active = true }: { active?: boolean }) {
   const sector = useDigStore((s) => s.sector);
   const celebratingRelic = useDigStore((s) => s.celebratingRelic);
   const dismissCelebration = useDigStore((s) => s.dismissCelebration);
   const balance = useWalletStore((s) => s.balance);
+  const gridAreaRef = useRef<HTMLDivElement>(null);
+  const [tileSize, setTileSize] = useState(MIN_TILE_SIZE);
+
+  useEffect(() => {
+    const el = gridAreaRef.current;
+    // Tab content stays mounted but display:none while inactive, so a measurement taken
+    // while hidden reads a zero-size box — skip it and wait for the tab to become active.
+    if (!el || !sector || !active) return;
+
+    function computeTileSize() {
+      if (!el || !sector) return;
+      const availableWidth = el.clientWidth - CONTAINER_H_PADDING;
+      const availableHeight = el.clientHeight - CONTAINER_V_PADDING;
+      if (availableWidth <= 0 || availableHeight <= 0) return;
+      const fit = Math.floor(Math.min(availableWidth / sector.width, availableHeight / sector.height));
+      setTileSize(Math.max(MIN_TILE_SIZE, Math.min(fit, MAX_TILE_SIZE)));
+    }
+
+    computeTileSize();
+    const observer = new ResizeObserver(computeTileSize);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sector?.width, sector?.height, active]);
 
   if (!sector) {
     return (
-      <div className="app-screen bg-gradient-to-b from-sky-900 to-amber-900 flex items-center justify-center">
+      <div className="app-screen bg-gradient-to-b from-sky-900/60 to-amber-900/80 flex items-center justify-center">
         <p className="text-gray-200 text-sm">Connecting to the dig site...</p>
       </div>
     );
@@ -49,8 +77,8 @@ export function DigScreen() {
           style={{
             gridColumn: x + 1,
             gridRow: y + 1,
-            width: TILE_SIZE,
-            height: TILE_SIZE,
+            width: tileSize,
+            height: tileSize,
             background: cleared
               ? "linear-gradient(135deg, #7c5a3a, #6b4a2c)"
               : "linear-gradient(135deg, #c99a5b, #a97a3d)",
@@ -73,14 +101,14 @@ export function DigScreen() {
             gridRow: `${r.y + 1} / span ${r.h}`,
           }}
         >
-          <span style={{ fontSize: Math.min(r.w, r.h) * TILE_SIZE * 0.55 }}>{type?.artAssetKey ?? "❔"}</span>
+          <span style={{ fontSize: Math.min(r.w, r.h) * tileSize * 0.55 }}>{type?.artAssetKey ?? "❔"}</span>
         </div>
       );
     });
 
   return (
-    <div className="app-screen bg-gradient-to-b from-sky-900 to-amber-950 flex flex-col">
-      <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white">
+    <div className="app-screen bg-gradient-to-b from-sky-900/60 to-amber-950/85 flex flex-col">
+      <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]">
         <div>
           <div className="text-[10px] text-gray-300 font-bold">SITE</div>
           <div className="font-bold">Sector {sector.index + 1}</div>
@@ -92,7 +120,7 @@ export function DigScreen() {
       </div>
 
       <div className="px-4 pb-3">
-        <div className="bg-black/30 rounded-full px-4 py-2 text-center text-white text-xs font-semibold">
+        <div className="bg-black/40 rounded-full px-4 py-2 text-center text-white text-xs font-semibold shadow-lg shadow-black/40">
           Relics uncovered: {unlockedCount}/{totalRelics}
         </div>
       </div>
@@ -108,12 +136,12 @@ export function DigScreen() {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto px-4 pb-4">
+      <div ref={gridAreaRef} className="flex-1 overflow-auto px-4 pb-4 flex items-center justify-center">
         <div
-          className="relative inline-grid rounded-lg overflow-hidden ring-2 ring-amber-700/60"
+          className="relative inline-grid rounded-lg overflow-hidden ring-2 ring-amber-700/60 shadow-[0_10px_28px_rgba(0,0,0,0.55)]"
           style={{
-            gridTemplateColumns: `repeat(${sector.width}, ${TILE_SIZE}px)`,
-            gridTemplateRows: `repeat(${sector.height}, ${TILE_SIZE}px)`,
+            gridTemplateColumns: `repeat(${sector.width}, ${tileSize}px)`,
+            gridTemplateRows: `repeat(${sector.height}, ${tileSize}px)`,
           }}
         >
           {tiles}

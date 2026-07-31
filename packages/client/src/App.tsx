@@ -6,6 +6,7 @@ import { DigScreen } from "./screens/DigScreen";
 import { MantleScreen } from "./screens/MantleScreen";
 import { AuthScreen } from "./screens/AuthScreen";
 import { LobbyScreen } from "./screens/LobbyScreen";
+import { TitleScreen } from "./screens/TitleScreen";
 import { AccountModal } from "./components/AccountModal";
 import { useAuthStore } from "./state/authStore";
 import { useWalletStore } from "./state/walletStore";
@@ -15,11 +16,16 @@ import { getStoredToken } from "./lib/apiClient";
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>("puzzle");
   const [showAccount, setShowAccount] = useState(false);
+  const [showTitle, setShowTitle] = useState(true);
   const { status, site, bootstrap } = useAuthStore();
 
   useEffect(() => {
     bootstrap();
   }, [bootstrap]);
+
+  useEffect(() => {
+    if (status === "signed_out") setShowTitle(true);
+  }, [status]);
 
   useEffect(() => {
     if (!site) return;
@@ -40,7 +46,7 @@ export default function App() {
   if (status === "signed_out") {
     return (
       <div className="app-frame">
-        <AuthScreen />
+        {showTitle ? <TitleScreen onStart={() => setShowTitle(false)} /> : <AuthScreen />}
       </div>
     );
   }
@@ -59,7 +65,7 @@ export default function App() {
         <PuzzleScreen />
       </div>
       <div className={activeTab === "site" ? "" : "hidden"}>
-        <DigScreen />
+        <DigScreen active={activeTab === "site"} />
       </div>
       <div className={activeTab === "mantle" ? "" : "hidden"}>
         <MantleScreen />

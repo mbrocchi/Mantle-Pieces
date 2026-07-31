@@ -237,15 +237,15 @@ export function PuzzleScreen() {
 
   if (!grid || !stage) {
     return (
-      <div className="app-screen bg-gradient-to-b from-navy to-black flex items-center justify-center">
+      <div className="app-screen bg-gradient-to-b from-navy/70 to-black/85 flex items-center justify-center">
         <p className="text-gray-400 text-sm">Loading your puzzle...</p>
       </div>
     );
   }
 
   return (
-    <div className="app-screen bg-gradient-to-b from-navy to-black flex flex-col">
-      <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white">
+    <div className="app-screen bg-gradient-to-b from-navy/70 to-black/85 flex flex-col">
+      <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]">
         <div className="text-center">
           <div className="text-[10px] text-gray-400 font-bold">LEVEL</div>
           <div className="font-bold">{stage.levelNumber}</div>
@@ -262,7 +262,10 @@ export function PuzzleScreen() {
 
       <div className="px-4 pb-3 flex items-center justify-center gap-4">
         {stage.objectives.map((o) => (
-          <div key={o.color} className="flex items-center gap-1.5 bg-white/5 rounded-full px-3 py-1">
+          <div
+            key={o.color}
+            className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 shadow-lg shadow-black/40"
+          >
             <span className={`w-3 h-3 rounded-full ${DOT_COLOR_CLASS[o.color]}`} />
             <span className="text-white text-xs font-semibold">
               {Math.min(o.cleared, o.target)}/{o.target}
@@ -285,7 +288,7 @@ export function PuzzleScreen() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="relative w-full aspect-square rounded-2xl ring-2 ring-gold shadow-[0_0_24px_4px_rgba(212,175,55,0.5)] bg-black/40 touch-none select-none"
+          className="relative w-full aspect-square rounded-2xl ring-2 ring-gold shadow-[0_0_24px_4px_rgba(212,175,55,0.5),0_10px_28px_rgba(0,0,0,0.55)] bg-black/40 touch-none select-none"
         >
           {grid.map((column, col) =>
             column.map((cell, row) => {
