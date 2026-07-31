@@ -58,8 +58,8 @@ export function generateSectorRelics(vaultThemeIndex: number): RelicPlacement[] 
   // has on the mantle can reappear in a new sector alongside undiscovered ones.
   const quota: RelicType[] = [
     ...pickN(heirlooms, randInt(1, 1)),
-    ...pickN(rares, randInt(2, 3)),
-    ...pickN(commons, randInt(5, 8)),
+    ...pickN(rares, randInt(1, 1)),
+    ...pickN(commons, randInt(2, 3)),
   ].sort((a, b) => b.w * b.h - a.w * a.h);
 
   const occupied: boolean[][] = Array.from({ length: GRID_H }, () => Array(GRID_W).fill(false));

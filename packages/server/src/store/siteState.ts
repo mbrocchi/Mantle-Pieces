@@ -37,11 +37,30 @@ export function createEmptySiteState(inviteCode: string): SiteState {
   };
 }
 
+/** Re-deals the current sector when GRID_W/GRID_H has changed since it was created, so a
+ *  site never gets stuck showing a stale board size after a grid-dimension tweak. */
+function migrateSectorSize(site: SiteState): boolean {
+  if (site.sector.width === GRID_W && site.sector.height === GRID_H) return false;
+  site.sector = {
+    index: site.sector.index,
+    width: GRID_W,
+    height: GRID_H,
+    tilesClearedBase64: emptyBitmask(GRID_W, GRID_H),
+    relicPlacements: generateSectorRelics(site.currentVaultThemeIndex),
+    createdAt: Date.now(),
+    completedAt: null,
+  };
+  return true;
+}
+
 export function getSite(siteId: string): SiteState | null {
   const cached = siteCache.get(siteId);
   if (cached) return cached;
   const loaded = readJsonSync<SiteState | null>(siteFilePath(siteId), null);
-  if (loaded) siteCache.set(siteId, loaded);
+  if (!loaded) return null;
+  const migrated = migrateSectorSize(loaded);
+  siteCache.set(siteId, loaded);
+  if (migrated) persistSite(siteId);
   return loaded;
 }
 

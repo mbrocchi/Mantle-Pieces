@@ -75,11 +75,22 @@ export function PuzzleScreen() {
     setChain([]);
   }
 
+  function retryStage() {
+    setStage(generateStage(stage.levelNumber));
+    setMovesUsed(0);
+    setGrid(createRandomGrid());
+    setChain([]);
+  }
+
   useEffect(() => {
     const allDone = stage.objectives.every((o) => o.cleared >= o.target);
     const outOfMoves = movesUsed >= stage.movesLimit;
-    if (allDone || outOfMoves) {
-      const timeout = setTimeout(advanceStage, allDone ? 900 : 500);
+    if (allDone) {
+      const timeout = setTimeout(advanceStage, 900);
+      return () => clearTimeout(timeout);
+    }
+    if (outOfMoves) {
+      const timeout = setTimeout(retryStage, 500);
       return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,5 +1,5 @@
-export const GRID_W = 10;
-export const GRID_H = 10;
+export const GRID_W = 6;
+export const GRID_H = 6;
 
 export const PUZZLE_SIZE = 6;
 
