@@ -12,11 +12,11 @@ export const syncRequestMessage = z.object({
   type: z.literal("sync:request"),
 });
 
-/** Sent once per closed-loop clear so the shared wallet updates live across every connected family member. */
+/** Sent once per closed-loop clear (or level clear) so the shared wallet updates live across every connected family member. */
 export const puzzleTokensEarnedMessage = z.object({
   type: z.literal("puzzle:tokens_earned"),
   amount: z.number().int().positive(),
-  reason: z.enum(["loop_bonus"]),
+  reason: z.enum(["loop_bonus", "level_clear"]),
 });
 
 export const digClearTileMessage = z.object({

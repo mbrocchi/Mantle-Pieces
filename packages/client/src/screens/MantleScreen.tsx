@@ -2,10 +2,10 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { findRelicType, VAULT_SLOTS } from "shared";
 import { useMantleStore } from "../state/mantleStore";
-import { useWalletStore } from "../state/walletStore";
 import { RelicDetailCard } from "../components/RelicDetailCard";
 import { ArchiveBox } from "../components/ArchiveBox";
 import { SwapModal } from "../components/SwapModal";
+import { DigTokenBadge } from "../components/DigTokenBadge";
 
 /** Percentage-based position for each of the 10 mantle slots, matching the 3 shelf
  *  bands painted in /mantle-shelf.png (3 slots on the narrower top shelf, 4 across
@@ -29,7 +29,6 @@ const SHELF_SLOTS: { top: string; left: string; width: string; height: string }[
 export function MantleScreen() {
   const mantle = useMantleStore((s) => s.mantle);
   const collectedRelics = useMantleStore((s) => s.collectedRelics);
-  const balance = useWalletStore((s) => s.balance);
   const [selectedRelicId, setSelectedRelicId] = useState<string | null>(null);
   const [showArchive, setShowArchive] = useState(false);
 
@@ -43,10 +42,7 @@ export function MantleScreen() {
           <div className="text-[10px] text-gray-300 font-bold">MANTLE</div>
           <div className="font-bold">Vault 1</div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] text-gray-300 font-bold">DIG TOKENS</div>
-          <div className="font-bold text-gold">{balance}</div>
-        </div>
+        <DigTokenBadge />
       </div>
 
       <div className="px-4 pb-3">

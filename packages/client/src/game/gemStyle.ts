@@ -1,12 +1,14 @@
 import type { GemColor } from "shared";
 
+/** Antique/relic-themed palette so the puzzle dots read as treasures, not
+ *  generic web colors: gold, bronze, silver, tarnished copper, ruby, amethyst. */
 const GEM_HEX: Record<GemColor, { base: string; dark: string }> = {
-  red: { base: "#ef4444", dark: "#7f1d1d" },
-  blue: { base: "#3b82f6", dark: "#1e3a8a" },
-  green: { base: "#22c55e", dark: "#14532d" },
-  yellow: { base: "#eab308", dark: "#713f12" },
-  orange: { base: "#f97316", dark: "#7c2d12" },
-  purple: { base: "#a855f7", dark: "#581c87" },
+  red: { base: "#c62f4b", dark: "#4a0f1d" }, // ruby
+  blue: { base: "#b9c2c9", dark: "#4d5a63" }, // silver
+  green: { base: "#7ba489", dark: "#2c4433" }, // tarnished copper / verdigris
+  yellow: { base: "#d4af37", dark: "#7a5c14" }, // gold
+  orange: { base: "#cd7f32", dark: "#5c3a17" }, // bronze
+  purple: { base: "#9a6bc0", dark: "#452c62" }, // amethyst
 };
 
 export function gemGradient(color: GemColor): string {

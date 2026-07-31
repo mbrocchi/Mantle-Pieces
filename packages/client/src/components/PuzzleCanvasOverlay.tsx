@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { GemColor } from "shared";
+import { gemHex } from "../game/gemStyle";
 
 export interface PuzzleCanvasHandle {
   setLine: (points: { x: number; y: number }[] | null, color: GemColor | null) => void;
@@ -26,15 +27,6 @@ interface Shockwave {
   life: number;
 }
 
-const COLOR_HEX: Record<GemColor, string> = {
-  red: "#ef4444",
-  blue: "#3b82f6",
-  green: "#22c55e",
-  yellow: "#eab308",
-  orange: "#f97316",
-  purple: "#a855f7",
-};
-
 export const PuzzleCanvasOverlay = forwardRef<PuzzleCanvasHandle, object>(function PuzzleCanvasOverlay(
   _props,
   ref
@@ -46,10 +38,10 @@ export const PuzzleCanvasOverlay = forwardRef<PuzzleCanvasHandle, object>(functi
 
   useImperativeHandle(ref, () => ({
     setLine(points, color) {
-      lineRef.current = points && color ? { points, color: COLOR_HEX[color] } : null;
+      lineRef.current = points && color ? { points, color: gemHex(color) } : null;
     },
     burst(x, y, color) {
-      const hex = COLOR_HEX[color];
+      const hex = gemHex(color);
       for (let i = 0; i < 14; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 1.5 + Math.random() * 2.8;
@@ -65,7 +57,7 @@ export const PuzzleCanvasOverlay = forwardRef<PuzzleCanvasHandle, object>(functi
       }
     },
     shockwave(x, y, color) {
-      shockwavesRef.current.push({ x, y, radius: 4, maxRadius: 320, color: COLOR_HEX[color], life: 0 });
+      shockwavesRef.current.push({ x, y, radius: 4, maxRadius: 320, color: gemHex(color), life: 0 });
     },
   }));
 

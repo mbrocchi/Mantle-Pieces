@@ -8,18 +8,9 @@ import { generateStage, type PuzzleStage } from "../game/objectives";
 import { gemGradient, gemHex } from "../game/gemStyle";
 import { PuzzleCanvasOverlay, type PuzzleCanvasHandle } from "../components/PuzzleCanvasOverlay";
 import { playChainTone, playLoopBonusTone, unlockAudio } from "../audio/toneSynth";
-import { useWalletStore } from "../state/walletStore";
 import { wsClient } from "../lib/wsClient";
 import { getPuzzleProgress } from "../lib/apiClient";
-
-const DOT_COLOR_CLASS: Record<GemColor, string> = {
-  red: "bg-red-500",
-  blue: "bg-blue-500",
-  green: "bg-green-500",
-  yellow: "bg-yellow-500",
-  orange: "bg-orange-500",
-  purple: "bg-purple-500",
-};
+import { DigTokenBadge } from "../components/DigTokenBadge";
 
 function cellKey(pos: CellPos) {
   return `${pos.col},${pos.row}`;
@@ -33,7 +24,6 @@ export function PuzzleScreen() {
   const [grid, setGrid] = useState<Grid | null>(null);
   const [chain, setChain] = useState<CellPos[]>([]);
   const [dragging, setDragging] = useState(false);
-  const walletBalance = useWalletStore((s) => s.balance);
   const [stage, setStage] = useState<PuzzleStage | null>(null);
   const [movesUsed, setMovesUsed] = useState(0);
   const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
@@ -74,7 +64,7 @@ export function PuzzleScreen() {
     return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
-  function onTokensEarned(amount: number, reason: "loop_bonus") {
+  function onTokensEarned(amount: number, reason: "loop_bonus" | "level_clear") {
     wsClient.send({ type: "puzzle:tokens_earned", amount, reason });
   }
 
@@ -120,7 +110,10 @@ export function PuzzleScreen() {
     const allDone = stage.objectives.every((o) => o.cleared >= o.target);
     const outOfMoves = movesUsed >= stage.movesLimit;
     if (allDone) {
-      const timeout = setTimeout(advanceStage, 900);
+      const timeout = setTimeout(() => {
+        onTokensEarned(3, "level_clear");
+        advanceStage();
+      }, 900);
       return () => clearTimeout(timeout);
     }
     if (outOfMoves) {
@@ -254,10 +247,7 @@ export function PuzzleScreen() {
           <div className="text-[10px] text-gray-400 font-bold">MOVES</div>
           <div className="font-bold">{Math.max(0, stage.movesLimit - movesUsed)}</div>
         </div>
-        <div className="text-center">
-          <div className="text-[10px] text-gray-400 font-bold">DIG TOKENS</div>
-          <div className="font-bold text-gold">{walletBalance}</div>
-        </div>
+        <DigTokenBadge wrapperClassName="text-center" labelClassName="text-[10px] text-gray-400 font-bold" />
       </div>
 
       <div className="px-4 pb-3 flex items-center justify-center gap-4">
@@ -266,7 +256,7 @@ export function PuzzleScreen() {
             key={o.color}
             className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 shadow-lg shadow-black/40"
           >
-            <span className={`w-3 h-3 rounded-full ${DOT_COLOR_CLASS[o.color]}`} />
+            <span className="w-3 h-3 rounded-full" style={{ background: gemHex(o.color) }} />
             <span className="text-white text-xs font-semibold">
               {Math.min(o.cleared, o.target)}/{o.target}
             </span>

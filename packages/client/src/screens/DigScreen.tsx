@@ -5,6 +5,7 @@ import { useDigStore } from "../state/digStore";
 import { useWalletStore } from "../state/walletStore";
 import { wsClient } from "../lib/wsClient";
 import { isTileCleared } from "../game/bitmask";
+import { DigTokenBadge } from "../components/DigTokenBadge";
 
 const MIN_TILE_SIZE = 40;
 const MAX_TILE_SIZE = 104;
@@ -177,10 +178,7 @@ export function DigScreen({ active = true }: { active?: boolean }) {
           <div className="text-[10px] text-gray-300 font-bold">SITE</div>
           <div className="font-bold">Sector {sector.index + 1}</div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] text-gray-300 font-bold">DIG TOKENS</div>
-          <div className="font-bold text-gold">{balance}</div>
-        </div>
+        <DigTokenBadge />
       </div>
 
       <div className="px-4 pb-3">
