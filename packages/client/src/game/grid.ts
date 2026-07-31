@@ -17,8 +17,22 @@ function randomColor(): GemColor {
   return GEM_COLORS[Math.floor(Math.random() * GEM_COLORS.length)];
 }
 
+/** crypto.randomUUID() only exists in secure contexts (HTTPS or localhost) — accessing the
+ *  dev server over a plain-HTTP LAN address doesn't qualify, so fall back to a Math.random()
+ *  id there. Fine since these ids are only used as React keys / cell identity, never security. */
+function generateCellId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 function makeCell(): Cell {
-  return { id: crypto.randomUUID(), color: randomColor() };
+  return { id: generateCellId(), color: randomColor() };
 }
 
 export function createRandomGrid(size: number = PUZZLE_SIZE): Grid {

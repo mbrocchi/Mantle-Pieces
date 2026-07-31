@@ -9,6 +9,7 @@ import puzzleRouter from "./routes/puzzle";
 import { attachWebSocketServer } from "./ws/server";
 
 const PORT = Number(process.env.PORT ?? 3001);
+const HOST = "0.0.0.0";
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,6 @@ app.use("/api/puzzle", puzzleRouter);
 const httpServer = createServer(app);
 attachWebSocketServer(httpServer);
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, HOST, () => {
   console.log(`[server] listening on http://localhost:${PORT}`);
 });
