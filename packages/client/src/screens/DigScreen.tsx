@@ -123,7 +123,16 @@ export function DigScreen({ active = true }: { active?: boolean }) {
             gridRow: `${r.y + 1} / span ${r.h}`,
           }}
         >
-          <span style={{ fontSize: Math.min(r.w, r.h) * tileSize * 0.55 }}>{type?.artAssetKey ?? "❔"}</span>
+          {type ? (
+            <img
+              src={type.artAssetKey}
+              alt={type.name}
+              className="object-contain"
+              style={{ width: Math.min(r.w, r.h) * tileSize * 0.8, height: Math.min(r.w, r.h) * tileSize * 0.8 }}
+            />
+          ) : (
+            <span style={{ fontSize: Math.min(r.w, r.h) * tileSize * 0.55 }}>❔</span>
+          )}
         </div>
       );
     });
@@ -221,7 +230,11 @@ export function DigScreen({ active = true }: { active?: boolean }) {
               className="bg-mahogany rounded-2xl p-6 text-center border-2 border-gold max-w-xs"
             >
               <p className="text-gold text-xs font-bold tracking-widest mb-2">NEW FAMILY HEIRLOOM DISCOVERED!</p>
-              <div className="text-5xl mb-3">{findRelicType(celebratingRelic.relicTypeId)?.artAssetKey}</div>
+              <img
+                src={findRelicType(celebratingRelic.relicTypeId)?.artAssetKey}
+                alt={findRelicType(celebratingRelic.relicTypeId)?.name}
+                className="w-24 h-24 mx-auto mb-3 object-contain"
+              />
               <p className="text-white font-bold mb-2">{findRelicType(celebratingRelic.relicTypeId)?.name}</p>
               <p className="text-gray-300 text-xs mb-4">{findRelicType(celebratingRelic.relicTypeId)?.loreText}</p>
               <button

@@ -48,7 +48,7 @@ export function RelicDetailCard({
         className="bg-mahogany w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl border-t-2 sm:border-2 border-gold max-h-[85vh] flex flex-col"
       >
         <div className="p-5 text-center border-b border-white/10">
-          <div className="text-5xl mb-2">{type.artAssetKey}</div>
+          <img src={type.artAssetKey} alt={type.name} className="w-24 h-24 mx-auto mb-2 object-contain" />
           <p className="text-white font-bold">{type.name}</p>
           <p className="text-gray-400 text-xs mt-1">
             Discovered {new Date(placement.unlockedAt ?? Date.now()).toLocaleDateString()}

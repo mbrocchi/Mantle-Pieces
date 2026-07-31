@@ -29,7 +29,9 @@ export function SwapModal({ pendingRelicPlacementId }: { pendingRelicPlacementId
       >
         <p className="text-gold font-bold text-sm tracking-wide mb-1">MANTLEPIECE FULL</p>
         <p className="text-gray-300 text-xs mb-4">Select a relic to move to the Archive and make room for:</p>
-        <div className="text-4xl mb-1">{pendingType?.artAssetKey}</div>
+        {pendingType && (
+          <img src={pendingType.artAssetKey} alt={pendingType.name} className="w-16 h-16 mx-auto mb-1 object-contain" />
+        )}
         <p className="text-white font-bold mb-4">{pendingType?.name}</p>
         <div className="grid grid-cols-5 gap-2">
           {mantle.slots.map((relicPlacementId, i) => {
@@ -39,9 +41,9 @@ export function SwapModal({ pendingRelicPlacementId }: { pendingRelicPlacementId
               <button
                 key={i}
                 onClick={() => chooseSlot(i)}
-                className="aspect-square bg-black/30 rounded-lg flex items-center justify-center text-xl transition-transform active:scale-90"
+                className="aspect-square bg-black/30 rounded-lg flex items-center justify-center transition-transform active:scale-90"
               >
-                {type?.artAssetKey}
+                {type && <img src={type.artAssetKey} alt={type.name} className="w-8 h-8 object-contain" />}
               </button>
             );
           })}

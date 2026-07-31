@@ -42,7 +42,11 @@ export function ArchiveBox({
                 onClick={() => onSelectRelic(entry.relicPlacementId)}
                 className="aspect-square bg-black/30 rounded-xl flex flex-col items-center justify-center transition-transform active:scale-95"
               >
-                <span className="text-2xl">{type?.artAssetKey ?? "❔"}</span>
+                {type ? (
+                  <img src={type.artAssetKey} alt={type.name} className="w-10 h-10 object-contain" />
+                ) : (
+                  <span className="text-2xl">❔</span>
+                )}
               </button>
             );
           })}
