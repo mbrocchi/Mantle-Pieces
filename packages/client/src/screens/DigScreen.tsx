@@ -12,6 +12,15 @@ const MAX_TILE_SIZE = 104;
 // which clientWidth/clientHeight include but which isn't usable space for the grid itself.
 const CONTAINER_H_PADDING = 32;
 const CONTAINER_V_PADDING = 16;
+const SHARD_COLORS = ["#8a6a45", "#6b4a2c", "#c99a5b", "#4a3620"];
+const SHARD_COUNT = 7;
+const SHATTER_DURATION_MS = 550;
+
+interface Shatter {
+  id: string;
+  x: number;
+  y: number;
+}
 
 export function DigScreen({ active = true }: { active?: boolean }) {
   const sector = useDigStore((s) => s.sector);
@@ -20,6 +29,19 @@ export function DigScreen({ active = true }: { active?: boolean }) {
   const balance = useWalletStore((s) => s.balance);
   const gridAreaRef = useRef<HTMLDivElement>(null);
   const [tileSize, setTileSize] = useState(MIN_TILE_SIZE);
+  const [shatters, setShatters] = useState<Shatter[]>([]);
+
+  useEffect(() => {
+    // Reacts to the server broadcast (not the local click) so every family member sees the
+    // breaking-block effect for every dig, not just the tiles they personally tapped.
+    return wsClient.on("dig:tile_cleared", (msg) => {
+      if (msg.type !== "dig:tile_cleared") return;
+      if (!sector || msg.sectorIndex !== sector.index) return;
+      const id = `${msg.x},${msg.y},${Date.now()}-${Math.random()}`;
+      setShatters((prev) => [...prev, { id, x: msg.x, y: msg.y }]);
+      setTimeout(() => setShatters((prev) => prev.filter((s) => s.id !== id)), SHATTER_DURATION_MS);
+    });
+  }, [sector?.index]);
 
   useEffect(() => {
     const el = gridAreaRef.current;
@@ -73,7 +95,7 @@ export function DigScreen({ active = true }: { active?: boolean }) {
         <button
           key={`${x},${y}`}
           onClick={() => tapTile(x, y)}
-          className="p-0 border border-black/20 transition-transform active:scale-90"
+          className="p-0 border border-black/20 transition-all duration-300 active:scale-90"
           style={{
             gridColumn: x + 1,
             gridRow: y + 1,
@@ -105,6 +127,39 @@ export function DigScreen({ active = true }: { active?: boolean }) {
         </div>
       );
     });
+
+  const shatterBursts = shatters.map((s) => (
+    <div
+      key={s.id}
+      className="relative pointer-events-none"
+      style={{ gridColumn: s.x + 1, gridRow: s.y + 1 }}
+    >
+      {Array.from({ length: SHARD_COUNT }).map((_, i) => {
+        const angle = (i / SHARD_COUNT) * Math.PI * 2 + Math.random() * 0.4;
+        const distance = tileSize * (0.55 + Math.random() * 0.35);
+        return (
+          <motion.div
+            key={i}
+            initial={{ x: "-50%", y: "-50%", opacity: 1, rotate: 0, scale: 1 }}
+            animate={{
+              x: `calc(-50% + ${Math.cos(angle) * distance}px)`,
+              y: `calc(-50% + ${Math.sin(angle) * distance - tileSize * 0.2}px)`,
+              opacity: 0,
+              rotate: (Math.random() - 0.5) * 360,
+              scale: 0.3,
+            }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="absolute top-1/2 left-1/2 rounded-sm"
+            style={{
+              width: tileSize * 0.16,
+              height: tileSize * 0.16,
+              background: SHARD_COLORS[i % SHARD_COLORS.length],
+            }}
+          />
+        );
+      })}
+    </div>
+  ));
 
   return (
     <div className="app-screen bg-gradient-to-b from-sky-900/60 to-amber-950/85 flex flex-col">
@@ -146,6 +201,7 @@ export function DigScreen({ active = true }: { active?: boolean }) {
         >
           {tiles}
           {relicOverlays}
+          {shatterBursts}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 {
   "levelNumber": 1,
   "movesLimit": 20,
-  "movesUsed": 0,
+  "movesUsed": 1,
   "objectives": [
     {
       "color": "orange",
@@ -11,11 +11,15 @@
     {
       "color": "green",
       "target": 10,
-      "cleared": 0
+      "cleared": 2
     }
   ],
   "grid": [
     [
+      {
+        "id": "2dc4af82-140d-4224-80d7-0c6a976a68d1",
+        "color": "blue"
+      },
       {
         "id": "e5350331-d91b-473d-8dc8-63537c0d223e",
         "color": "purple"
@@ -29,10 +33,6 @@
         "color": "red"
       },
       {
-        "id": "7919f55a-f9ab-4805-bb7c-acf8f7383bd0",
-        "color": "green"
-      },
-      {
         "id": "8c1bb1e6-36ec-4f1d-ad04-715a9a7b1fe5",
         "color": "blue"
       },
@@ -42,6 +42,10 @@
       }
     ],
     [
+      {
+        "id": "6e723994-5e66-495e-af2f-c294621b4e7c",
+        "color": "blue"
+      },
       {
         "id": "1bd57678-9519-427a-8b7b-df61043ecd9c",
         "color": "yellow"
@@ -53,10 +57,6 @@
       {
         "id": "a6efdd84-4768-4389-a8fa-4d63f74f68ce",
         "color": "purple"
-      },
-      {
-        "id": "9078209b-75f8-49ad-81b2-6967c5114bf1",
-        "color": "green"
       },
       {
         "id": "34aedf55-5c9a-4e2b-bc63-dfa5b5df5e35",

@@ -5,7 +5,7 @@ import { createRandomGrid, type CellPos, type Grid } from "../game/grid";
 import { stepChain } from "../game/chain";
 import { clearAndRefill } from "../game/gravity";
 import { generateStage, type PuzzleStage } from "../game/objectives";
-import { gemGradient } from "../game/gemStyle";
+import { gemGradient, gemHex } from "../game/gemStyle";
 import { PuzzleCanvasOverlay, type PuzzleCanvasHandle } from "../components/PuzzleCanvasOverlay";
 import { playChainTone, playLoopBonusTone, unlockAudio } from "../audio/toneSynth";
 import { useWalletStore } from "../state/walletStore";
@@ -290,40 +290,49 @@ export function PuzzleScreen() {
           onPointerCancel={handlePointerUp}
           className="relative w-full aspect-square rounded-2xl ring-2 ring-gold shadow-[0_0_24px_4px_rgba(212,175,55,0.5),0_10px_28px_rgba(0,0,0,0.55)] bg-black/40 touch-none select-none"
         >
-          {grid.map((column, col) =>
-            column.map((cell, row) => {
-              const isActive = chainKeys.has(cellKey({ col, row }));
-              return (
-                <motion.div
-                  key={cell.id}
-                  data-col={col}
-                  data-row={row}
-                  initial={{ y: "-140%" }}
-                  animate={{ y: `${row * 100}%` }}
-                  transition={{ type: "spring", stiffness: 320, damping: 28, delay: row * 0.02 }}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: `${(col / PUZZLE_SIZE) * 100}%`,
-                    width: `${100 / PUZZLE_SIZE}%`,
-                    height: `${100 / PUZZLE_SIZE}%`,
-                  }}
-                  className="p-1"
-                >
-                  <div
-                    className="w-full h-full rounded-full transition-transform"
-                    style={{
-                      background: gemGradient(cell.color),
-                      boxShadow: isActive
-                        ? "0 0 0 3px rgba(255,255,255,0.9), 0 0 14px 2px rgba(255,255,255,0.6)"
-                        : "inset 0 -3px 6px rgba(0,0,0,0.35)",
-                      transform: isActive ? "scale(1.08)" : "scale(1)",
+          <AnimatePresence initial={false}>
+            {grid.flatMap((column, col) =>
+              column.map((cell, row) => {
+                const isActive = chainKeys.has(cellKey({ col, row }));
+                const hex = gemHex(cell.color);
+                return (
+                  <motion.div
+                    key={cell.id}
+                    data-col={col}
+                    data-row={row}
+                    initial={{ y: "-140%", scale: 1, opacity: 1, rotate: 0 }}
+                    animate={{ y: `${row * 100}%`, scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{
+                      scale: [1, 1.35, 0],
+                      opacity: [1, 1, 0],
+                      rotate: 90,
+                      transition: { duration: 0.32, times: [0, 0.35, 1], ease: "easeIn" },
                     }}
-                  />
-                </motion.div>
-              );
-            })
-          )}
+                    transition={{ type: "spring", stiffness: 320, damping: 28, delay: row * 0.02 }}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: `${(col / PUZZLE_SIZE) * 100}%`,
+                      width: `${100 / PUZZLE_SIZE}%`,
+                      height: `${100 / PUZZLE_SIZE}%`,
+                    }}
+                    className="p-1"
+                  >
+                    <div
+                      className="w-full h-full rounded-full transition-all duration-150"
+                      style={{
+                        background: gemGradient(cell.color),
+                        boxShadow: isActive
+                          ? `0 0 0 3px ${hex}, 0 0 16px 4px ${hex}, 0 0 28px 8px ${hex}99`
+                          : "inset 0 -3px 6px rgba(0,0,0,0.35)",
+                        transform: isActive ? "scale(1.18)" : "scale(1)",
+                      }}
+                    />
+                  </motion.div>
+                );
+              })
+            )}
+          </AnimatePresence>
           <PuzzleCanvasOverlay ref={canvasHandleRef} />
         </motion.div>
       </div>
