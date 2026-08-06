@@ -11,6 +11,7 @@ import { playChainTone, playLoopBonusTone, unlockAudio } from "../audio/toneSynt
 import { wsClient } from "../lib/wsClient";
 import { getPuzzleProgress } from "../lib/apiClient";
 import { DigTokenBadge } from "../components/DigTokenBadge";
+import { RoundCompleteModal } from "../components/RoundCompleteModal";
 
 function cellKey(pos: CellPos) {
   return `${pos.col},${pos.row}`;
@@ -27,6 +28,8 @@ export function PuzzleScreen() {
   const [stage, setStage] = useState<PuzzleStage | null>(null);
   const [movesUsed, setMovesUsed] = useState(0);
   const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
+  const [roundResult, setRoundResult] = useState<"win" | "loss" | null>(null);
+  const [roundDigsEarned, setRoundDigsEarned] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +69,7 @@ export function PuzzleScreen() {
 
   function onTokensEarned(amount: number, reason: "loop_bonus" | "level_clear") {
     wsClient.send({ type: "puzzle:tokens_earned", amount, reason });
+    setRoundDigsEarned((prev) => prev + amount);
   }
 
   function withObjectiveProgress(objectives: PuzzleStage["objectives"], color: GemColor, count: number) {
@@ -91,6 +95,8 @@ export function PuzzleScreen() {
     setMovesUsed(0);
     setGrid(nextGrid);
     setChain([]);
+    setRoundResult(null);
+    setRoundDigsEarned(0);
     persistProgress(nextGrid, nextStage, 0);
   }
 
@@ -102,26 +108,32 @@ export function PuzzleScreen() {
     setMovesUsed(0);
     setGrid(nextGrid);
     setChain([]);
+    setRoundResult(null);
+    setRoundDigsEarned(0);
     persistProgress(nextGrid, nextStage, 0);
   }
 
   useEffect(() => {
-    if (!stage) return;
+    if (!stage || roundResult) return;
     const allDone = stage.objectives.every((o) => o.cleared >= o.target);
     const outOfMoves = movesUsed >= stage.movesLimit;
     if (allDone) {
       const timeout = setTimeout(() => {
         onTokensEarned(3, "level_clear");
-        advanceStage();
+        setShowForfeitConfirm(false);
+        setRoundResult("win");
       }, 900);
       return () => clearTimeout(timeout);
     }
     if (outOfMoves) {
-      const timeout = setTimeout(retryStage, 500);
+      const timeout = setTimeout(() => {
+        setShowForfeitConfirm(false);
+        setRoundResult("loss");
+      }, 500);
       return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, movesUsed]);
+  }, [stage, movesUsed, roundResult]);
 
   function endDrag() {
     setDragging(false);
@@ -236,6 +248,11 @@ export function PuzzleScreen() {
     );
   }
 
+  const isRoundOver =
+    roundResult !== null ||
+    stage.objectives.every((o) => o.cleared >= o.target) ||
+    movesUsed >= stage.movesLimit;
+
   return (
     <div className="app-screen bg-gradient-to-b from-navy/70 to-black/85 flex flex-col">
       <div className="px-4 pt-3 pb-2 flex items-center justify-between text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]">
@@ -264,11 +281,13 @@ export function PuzzleScreen() {
         ))}
       </div>
 
-      <div className="px-4 pb-2 flex justify-center">
-        <button onClick={() => setShowForfeitConfirm(true)} className="text-gray-400 text-xs underline">
-          Stuck? Forfeit Level
-        </button>
-      </div>
+      {!roundResult && (
+        <div className="px-4 pb-2 flex justify-center">
+          <button onClick={() => setShowForfeitConfirm(true)} className="text-gray-400 text-xs underline">
+            Stuck? Forfeit Level
+          </button>
+        </div>
+      )}
 
       <div className="flex-1 flex items-center justify-center px-4 pb-4">
         <motion.div
@@ -278,7 +297,9 @@ export function PuzzleScreen() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="relative w-full aspect-square rounded-2xl ring-2 ring-gold shadow-[0_0_24px_4px_rgba(212,175,55,0.5),0_10px_28px_rgba(0,0,0,0.55)] bg-black/40 touch-none select-none"
+          className={`relative w-full aspect-square rounded-2xl ring-2 ring-gold shadow-[0_0_24px_4px_rgba(212,175,55,0.5),0_10px_28px_rgba(0,0,0,0.55)] bg-black/40 touch-none select-none ${
+            isRoundOver ? "pointer-events-none" : ""
+          }`}
         >
           <AnimatePresence initial={false}>
             {grid.flatMap((column, col) =>
@@ -363,6 +384,17 @@ export function PuzzleScreen() {
               </button>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {roundResult && (
+          <RoundCompleteModal
+            result={roundResult}
+            levelNumber={stage.levelNumber}
+            digsEarned={roundDigsEarned}
+            onContinue={() => (roundResult === "win" ? advanceStage() : retryStage())}
+          />
         )}
       </AnimatePresence>
     </div>
