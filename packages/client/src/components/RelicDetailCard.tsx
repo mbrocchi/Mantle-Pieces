@@ -3,8 +3,6 @@ import { motion } from "framer-motion";
 import { findRelicType } from "shared";
 import { useMantleStore } from "../state/mantleStore";
 import { addTextNote } from "../lib/apiClient";
-import { NoteRecorder } from "./NoteRecorder";
-import { AudioNotePlayer } from "./AudioNotePlayer";
 
 export function RelicDetailCard({
   relicPlacementId,
@@ -61,11 +59,7 @@ export function RelicDetailCard({
           {notes.map((note) => (
             <div key={note.id} className="bg-black/30 rounded-xl p-3">
               <p className="text-gold text-xs font-bold mb-1">{note.authorUsername}</p>
-              {note.type === "text" ? (
-                <p className="text-gray-200 text-sm">{note.textContent}</p>
-              ) : (
-                <AudioNotePlayer audioPath={note.audioPath!} />
-              )}
+              <p className="text-gray-200 text-sm">{note.textContent}</p>
               <p className="text-gray-500 text-[10px] mt-1">{new Date(note.createdAt).toLocaleString()}</p>
             </div>
           ))}
@@ -87,7 +81,6 @@ export function RelicDetailCard({
               Send
             </button>
           </div>
-          <NoteRecorder relicPlacementId={relicPlacementId} />
           <button onClick={onClose} className="text-gray-400 text-xs underline mt-1">
             Close
           </button>

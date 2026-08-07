@@ -46,9 +46,8 @@ export interface RelicNote {
   id: string;
   authorUserId: string;
   authorUsername: string;
-  type: "text" | "audio";
-  textContent: string | null;
-  audioPath: string | null;
+  type: "text";
+  textContent: string;
   createdAt: number;
 }
 

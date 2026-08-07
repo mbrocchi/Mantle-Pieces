@@ -86,29 +86,4 @@ export async function addTextNote(relicPlacementId: string, textContent: string)
   });
 }
 
-export async function addAudioNote(relicPlacementId: string, blob: Blob) {
-  const form = new FormData();
-  form.append("audio", blob, "note.webm");
-  const token = getStoredToken();
-  const res = await fetch(`/api/relics/${relicPlacementId}/notes`, {
-    method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    body: form,
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, body.message ?? body.error ?? "Request failed");
-  return body as { note: RelicNote };
-}
-
-/** Fetches the audio with the auth header (never in the URL/query string) and returns a blob object URL. */
-export async function loadAudioNoteUrl(audioPath: string): Promise<string> {
-  const token = getStoredToken();
-  const res = await fetch(`/api/audio/${audioPath}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-  if (!res.ok) throw new ApiError(res.status, "Could not load recording");
-  const blob = await res.blob();
-  return URL.createObjectURL(blob);
-}
-
 export { ApiError };

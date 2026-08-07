@@ -114,7 +114,7 @@ export interface NoteAddedEvent {
   type: "note:added";
   relicPlacementId: string;
   noteId: string;
-  noteType: "text" | "audio";
+  noteType: "text";
 }
 
 export interface SyncStateEvent {

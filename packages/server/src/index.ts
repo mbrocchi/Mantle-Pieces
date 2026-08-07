@@ -4,7 +4,6 @@ import { createServer } from "node:http";
 import authRouter from "./routes/auth";
 import sitesRouter from "./routes/sites";
 import notesRouter from "./routes/notes";
-import audioRouter from "./routes/audio";
 import puzzleRouter from "./routes/puzzle";
 import adminRouter from "./routes/admin";
 import { attachWebSocketServer } from "./ws/server";
@@ -23,7 +22,6 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/sites", sitesRouter);
 app.use("/api/relics", notesRouter);
-app.use("/api/audio", audioRouter);
 app.use("/api/puzzle", puzzleRouter);
 app.use("/api/admin", adminRouter);
 
