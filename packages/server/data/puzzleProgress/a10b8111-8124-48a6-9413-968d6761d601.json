@@ -1,0 +1,180 @@
+{
+  "levelNumber": 1,
+  "movesLimit": 37,
+  "movesUsed": 3,
+  "objectives": [
+    {
+      "color": "yellow",
+      "target": 17,
+      "cleared": 0
+    },
+    {
+      "color": "purple",
+      "target": 16,
+      "cleared": 0
+    },
+    {
+      "color": "green",
+      "target": 8,
+      "cleared": 0
+    }
+  ],
+  "grid": [
+    [
+      {
+        "id": "4ba8b75d-aed8-41fa-b7fe-be598823901f",
+        "color": "orange"
+      },
+      {
+        "id": "561e1956-93c1-4299-bdbb-0f7688582292",
+        "color": "green"
+      },
+      {
+        "id": "367ae135-2566-49bd-833b-ca04f86101a7",
+        "color": "purple"
+      },
+      {
+        "id": "23de028d-3825-407f-8d26-d9fb27569402",
+        "color": "red"
+      },
+      {
+        "id": "b464f537-c543-4133-93ee-26029c8d33c1",
+        "color": "green"
+      },
+      {
+        "id": "8812a772-c516-4cee-9fdb-17e054a17405",
+        "color": "orange"
+      }
+    ],
+    [
+      {
+        "id": "8b33a979-dd60-477f-aa4f-63faa2d4db8f",
+        "color": "yellow"
+      },
+      {
+        "id": "0a765158-cc41-44ff-9a47-57b413075cbc",
+        "color": "orange"
+      },
+      {
+        "id": "c76b9b77-9a2b-408d-9b1c-45dbff37952c",
+        "color": "red"
+      },
+      {
+        "id": "a4299bec-30c7-4655-81df-a953ef6ab801",
+        "color": "yellow"
+      },
+      {
+        "id": "ed9a437f-ae13-4456-920f-784eb745ffb4",
+        "color": "purple"
+      },
+      {
+        "id": "f3d565ae-04f9-459d-b88a-58dae235ce90",
+        "color": "orange"
+      }
+    ],
+    [
+      {
+        "id": "a9db9a54-ccec-4375-97d6-0ea77cb2e05d",
+        "color": "blue"
+      },
+      {
+        "id": "83cdb074-bc84-47c0-a999-482372f8b3cc",
+        "color": "purple"
+      },
+      {
+        "id": "98214c21-47c2-415f-bfae-b8b51abd2842",
+        "color": "blue"
+      },
+      {
+        "id": "227c599a-d663-44e1-ad09-b66851195551",
+        "color": "blue"
+      },
+      {
+        "id": "f16f51b3-80b2-4295-a0a4-bf8490fae88f",
+        "color": "orange"
+      },
+      {
+        "id": "135b2bc6-98e2-4800-8e8e-315c12508eaf",
+        "color": "purple"
+      }
+    ],
+    [
+      {
+        "id": "55b0f1ab-6ceb-489d-9d83-36d4057570ed",
+        "color": "yellow"
+      },
+      {
+        "id": "ce010657-146e-48fc-a78c-4355f1985456",
+        "color": "blue"
+      },
+      {
+        "id": "2bd9d4fc-5d24-440e-ba91-1dbbcdd5d9d5",
+        "color": "red"
+      },
+      {
+        "id": "d0e47872-e5ba-4fb5-b661-3d5c46517eba",
+        "color": "yellow"
+      },
+      {
+        "id": "38dd6c6f-2bdb-4d15-bf13-72569e88079d",
+        "color": "orange"
+      },
+      {
+        "id": "049ba802-e745-44f4-b2ae-3688e68a1f50",
+        "color": "orange"
+      }
+    ],
+    [
+      {
+        "id": "eeebfcdb-1a4e-417f-93bf-39f1cc69808e",
+        "color": "orange"
+      },
+      {
+        "id": "ccc99186-352a-44f2-ae90-93de2931bb3e",
+        "color": "purple"
+      },
+      {
+        "id": "1e5fdade-6964-4794-a70f-58bc49910e7d",
+        "color": "blue"
+      },
+      {
+        "id": "a43cbb81-c176-45a0-9fa1-26864a169dc5",
+        "color": "yellow"
+      },
+      {
+        "id": "7934cea5-7c3e-48d9-a62a-f1c61a0d74ea",
+        "color": "yellow"
+      },
+      {
+        "id": "3d1cbe68-0dae-4b74-ac45-1f746610145e",
+        "color": "red"
+      }
+    ],
+    [
+      {
+        "id": "45aa5b56-8403-4088-9ae6-5586dfafd5ff",
+        "color": "purple"
+      },
+      {
+        "id": "c00ea42e-184f-4bc3-a37a-84ad7c83baa4",
+        "color": "blue"
+      },
+      {
+        "id": "1bdd361e-b52d-42a5-a74c-571177a4a3dd",
+        "color": "purple"
+      },
+      {
+        "id": "4c11699f-9ec7-4dbc-9ad0-789c602215f5",
+        "color": "yellow"
+      },
+      {
+        "id": "9c4e7eaf-9284-43e7-a4da-61d14a68ad2a",
+        "color": "purple"
+      },
+      {
+        "id": "6a9bf80d-76b2-49ec-9142-4a7347a10915",
+        "color": "red"
+      }
+    ]
+  ]
+}

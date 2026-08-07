@@ -1,10 +1,13 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAuthStore } from "../state/authStore";
+import { ResetDataModal } from "./ResetDataModal";
 
 export function AccountModal({ onClose }: { onClose: () => void }) {
   const user = useAuthStore((s) => s.user);
   const site = useAuthStore((s) => s.site);
   const logout = useAuthStore((s) => s.logout);
+  const [showReset, setShowReset] = useState(false);
 
   return (
     <motion.div
@@ -57,7 +60,16 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
         <button onClick={onClose} className="w-full text-gray-400 text-xs underline mt-3">
           Close
         </button>
+
+        <button
+          onClick={() => setShowReset(true)}
+          className="w-full text-red-500/80 text-[11px] underline mt-4"
+        >
+          Reset All App Data
+        </button>
       </motion.div>
+
+      <AnimatePresence>{showReset && <ResetDataModal onClose={() => setShowReset(false)} />}</AnimatePresence>
     </motion.div>
   );
 }

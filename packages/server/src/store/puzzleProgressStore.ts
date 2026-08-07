@@ -4,6 +4,10 @@ import type { PuzzleProgress } from "shared";
 
 const puzzleProgressCache = new Map<string, PuzzleProgress>();
 
+export function resetPuzzleProgressCache(): void {
+  puzzleProgressCache.clear();
+}
+
 export function getPuzzleProgress(userId: string): PuzzleProgress | null {
   const cached = puzzleProgressCache.get(userId);
   if (cached) return cached;

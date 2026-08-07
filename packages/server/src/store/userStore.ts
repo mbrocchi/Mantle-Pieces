@@ -29,6 +29,11 @@ function persistUsers(): void {
   if (usersCache) writeJsonAtomicSync(USERS_FILE, usersCache);
 }
 
+export function resetUserStoreCache(): void {
+  usersCache = null;
+  inviteIndexCache = null;
+}
+
 export function findUserByUsername(username: string): StoredUser | null {
   const users = loadUsers();
   const id = users.usernameIndex[username.toLowerCase()];

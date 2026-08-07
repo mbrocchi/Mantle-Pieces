@@ -11,9 +11,15 @@ import { handleMantleSwapRelic } from "./handlers/mantle";
 import type { ConnMeta } from "./connMeta";
 
 const connMeta = new WeakMap<WebSocket, ConnMeta>();
+let wssInstance: WebSocketServer | null = null;
+
+export function closeAllSockets(): void {
+  wssInstance?.clients.forEach((socket) => socket.close());
+}
 
 export function attachWebSocketServer(httpServer: Server): WebSocketServer {
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+  wssInstance = wss;
 
   wss.on("connection", (socket) => {
     socket.on("message", (raw) => {

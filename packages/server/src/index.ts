@@ -6,6 +6,7 @@ import sitesRouter from "./routes/sites";
 import notesRouter from "./routes/notes";
 import audioRouter from "./routes/audio";
 import puzzleRouter from "./routes/puzzle";
+import adminRouter from "./routes/admin";
 import { attachWebSocketServer } from "./ws/server";
 
 const PORT = Number(process.env.PORT ?? 3001);
@@ -24,6 +25,7 @@ app.use("/api/sites", sitesRouter);
 app.use("/api/relics", notesRouter);
 app.use("/api/audio", audioRouter);
 app.use("/api/puzzle", puzzleRouter);
+app.use("/api/admin", adminRouter);
 
 const httpServer = createServer(app);
 attachWebSocketServer(httpServer);

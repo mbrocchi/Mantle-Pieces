@@ -8,6 +8,10 @@ import { generateSectorRelics } from "../game/relicPlacement";
 
 const siteCache = new Map<string, SiteState>();
 
+export function resetSiteCache(): void {
+  siteCache.clear();
+}
+
 export function createEmptySiteState(inviteCode: string): SiteState {
   const now = Date.now();
   return {

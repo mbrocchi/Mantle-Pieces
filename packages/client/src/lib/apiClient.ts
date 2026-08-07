@@ -71,6 +71,10 @@ export function getMe() {
   return request<{ user: PublicUser }>("/auth/me");
 }
 
+export function resetAllData() {
+  return request<{ ok: boolean }>("/admin/reset-all-data", { method: "POST" });
+}
+
 export function getPuzzleProgress() {
   return request<{ progress: PuzzleProgress | null }>("/puzzle/progress");
 }

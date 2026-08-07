@@ -11,6 +11,10 @@ function load(): Record<string, string> {
   return cache;
 }
 
+export function resetMembershipCache(): void {
+  cache = null;
+}
+
 /** Each user belongs to exactly one family site at a time. */
 export function getUserSiteId(userId: string): string | null {
   return load()[userId] ?? null;
